@@ -76,12 +76,11 @@ bool HelloWorld::init()
 	this->addChild(_dmgPwrUp->sprite);
 
 	//Health Powerup - works on windows, but not on android...?
-	//initHEALTHPowerUp();
+	initHEALTHPowerUp();
 
 	//Enemies
 	initEnemies();
-
-
+	//initExplotionAnim();
 
 	//Health
 	cacher->addSpriteFramesWithFile("res/Health.plist");
@@ -99,6 +98,34 @@ bool HelloWorld::init()
 	_doubleDamage = Sprite::create("res/DoubleDamage.png");
 	_doubleDamage->setPosition(-100, 300);
 	this->addChild(_doubleDamage);
+
+	//GAME OVER	
+	_gameover = false;
+	_blackScreen = Sprite::create("res/BlackScreen.jpg");
+	_blackScreen->setAnchorPoint(Point(0, 0));
+	_blackScreen->setScale((winSize.width / _blackScreen->getContentSize().width), 
+		(winSize.height / _blackScreen->getContentSize().height));
+	_blackScreen->setPosition(-winSize.width, -winSize.height);
+	this->addChild(_blackScreen);	
+
+	_restartButton = ui::Button::create("res/Default/Button_Disable.png", 
+		"res/Default/Button_Press.png", "res/Default/Button_Normal.png");
+	_restartButton->setTitleText("Restart");
+	_restartButton->setScale(2);
+	_restartButton->setPosition(Vec2(-300, -300));
+	_restartButton->addTouchEventListener(CC_CALLBACK_0(HelloWorld::buttonPressed, this));
+	this->addChild(_restartButton);
+
+	//SCORE
+	_scoreLabel = Label::createWithTTF("Distance: 0", "res/Aller_Rg.ttf", 20);
+	_scoreLabel->setPosition(0 + _scoreLabel->getContentSize().width/2, winSize.height-20);
+	this->addChild(_scoreLabel);
+	_scoreCounter = 0;
+	_frameCounter = 0;
+
+	//MUSIC
+	audio = SimpleAudioEngine::getInstance();
+	audio->playBackgroundMusic("res/BGMusic.mp3", true);
 
 	//TOUCHES
 	//Set up a touch listener.
@@ -135,25 +162,25 @@ void HelloWorld::initHEALTHPowerUp()
 	//HealthPwrUp - need to move to own method
 	_healthPwrUp = new PowerUp();
 
-	cacher->addSpriteFramesWithFile("res/Heart.plist");
-
 	_healthPwrUp->sprite = Sprite::create();
+
+	cacher->addSpriteFramesWithFile("res/Heart.plist");
 
 	// load all the animation frames into an array
 	Vector<SpriteFrame*> frames;
-	for (int i = 1; i <= 8; i++)
+	for (int i = 1; i <= 2; i++)
 	{
 		stringstream ss;
-		ss << "frame_" << i << ".png";
+		ss << "heart_" << i << ".png";
 		frames.pushBack(cacher->getSpriteFrameByName(ss.str()));
 	}
 
 	//play the animation
-	Animation* anim = Animation::createWithSpriteFrames(frames, 0.225f);
+	Animation* anim = Animation::createWithSpriteFrames(frames, 0.1f);
 	_healthPwrUp->sprite->runAction(RepeatForever::create(Animate::create(anim)));
-	_healthPwrUp->sprite->setPosition(200, 100);
-	_healthPwrUp->sprite->setScale(0.07);
-	_healthPwrUp->scale = 1;
+	_healthPwrUp->sprite->setPosition(600, 100);
+	_healthPwrUp->sprite->setScale(2.5);
+	_healthPwrUp->scale = 2.5;
 	_healthPwrUp->onScreen = true;
 
 	_healthPwrUp->counter = 0;
@@ -161,16 +188,36 @@ void HelloWorld::initHEALTHPowerUp()
 	this->addChild(_healthPwrUp->sprite);
 }
 
+void HelloWorld::initExplotionAnim()
+{
+	Vector<SpriteFrame*> frames;
+	for (int i = 1; i <= 14; i++)
+	{
+		stringstream ss;
+		ss << "explosion_" << i << ".png";
+		frames.pushBack(cacher->getSpriteFrameByName(ss.str()));
+	}
+
+	auto temp = Animation::createWithSpriteFrames(frames, 0.1f);
+	for (int i = 0; i < 10; i++)
+	{
+		//_enemies[i]->_explosion = Animate::create(temp);
+		//_enemies[i]->_explosion->retain();
+	}
+
+}
+
 void HelloWorld::initEnemies()
 {
+	cacher->addSpriteFramesWithFile("res/Explosion.plist");
+
 	for (int i = 8; i < 10; i++)
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->initWithFile("res/Meteor.png");
-		_enemies[i]->onScreen = false;
+		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 3;
-		_enemies[i]->speed = 0.65;
+		_enemies[i]->speed = 0.7;
 		_enemies[i]->originalHealth = 4;
 		_enemies[i]->currentHealth = _enemies[i]->originalHealth;
 		_enemies[i]->scale = 3;
@@ -184,10 +231,9 @@ void HelloWorld::initEnemies()
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->initWithFile("res/Meteor.png");
-		_enemies[i]->onScreen = false;
+		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 2;
-		_enemies[i]->speed = 0.85;
+		_enemies[i]->speed = 1;
 		_enemies[i]->originalHealth = 2;
 		_enemies[i]->currentHealth = _enemies[i]->originalHealth;
 		_enemies[i]->scale = 2;
@@ -201,16 +247,15 @@ void HelloWorld::initEnemies()
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->initWithFile("res/Meteor.png");
-		_enemies[i]->onScreen = false;
+		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 1;
-		_enemies[i]->speed = 1;
+		_enemies[i]->speed = 1.4;
 		_enemies[i]->originalHealth = 1;
 		_enemies[i]->currentHealth = _enemies[i]->originalHealth;
 		_enemies[i]->scale = 1;
 		_enemies[i]->radius = _enemies[i]->sprite->getContentSize().width / 2 / _enemies[i]->scale;
 		_enemies[i]->sprite->runAction(RepeatForever::create(RotateBy::create(5.0f, 360.0f)));
-		this->addChild(_enemies[i]->sprite);
+		this->addChild(_enemies[i]->sprite);		
 	}
 	
 	_enemySpawn = 0;
@@ -258,18 +303,25 @@ void HelloWorld::setEnemySpawn(int i)
 
 void HelloWorld::update(float delta)
 {
-	updateBackground();
-
-	updateDMGPowerUp();
-	
-	if (_projectile->onScreen)
+	if (!_gameover)
 	{
-		updateProjectile();
+		updateBackground();
+
+		updateDMGPowerUp();
+
+		updateHEALTHPowerUp();
+	
+		if (_projectile->onScreen)
+		{
+			updateProjectile();
+		}
+
+		updateEnemies();
+
+		updatePlayerShip();
+
+		updateScore();
 	}
-
-	updateEnemies();
-
-	updatePlayerShip();
 }
 
 void HelloWorld::updateBackground()
@@ -336,7 +388,8 @@ void HelloWorld::updateEnemies()
 				_enemies[i]->currentHealth -= _projectile->damage;
 				if (_enemies[i]->currentHealth <= 0)
 				{
-					setEnemySpawn(i);
+						//_enemies[i]->sprite->runAction(_enemies[i]->_explosion);
+						setEnemySpawn(i);
 				}
 			}
 		}
@@ -344,11 +397,20 @@ void HelloWorld::updateEnemies()
 }
 
 void HelloWorld::updatePlayerShip()
-{
+{	if (_shipHealthInt >= 6)
+	{
+		_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_6.png"));
+		_blackScreen->setPosition(0,0);
+		_gameover = true;
+		audio->stopBackgroundMusic();
+		_restartButton->setPosition(Vec2(winSize.width / 2, 100));
+		audio->playEffect("GameOver.mp3", false, 1.0f, 1.0f, 1.0f);
+	}
 	for (int i = 0; i < 10; i++)
 	{
 		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
 		{
+			audio->playEffect("res/Hit.mp3", false, 1.0f, 1.0f, 0.5f);
 			setEnemySpawn(i);
 			_shipHealthInt += _enemies[i]->damage;	
 			if (_shipHealthInt < 7)
@@ -357,12 +419,21 @@ void HelloWorld::updatePlayerShip()
 				ss << "health_" << _shipHealthInt << ".png";
 				_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
 			}
-			else
-			{
-				_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_6.png"));
-				//GAME OVER - RESTART CODE NEEEDED...
-			}
 		}
+	}
+}
+
+void HelloWorld::updateScore()
+{
+	_frameCounter++;
+	if (_frameCounter == 5)
+	{
+		_frameCounter = 0;
+		_scoreCounter += 5;
+		stringstream ss;
+		ss << "Distance: " << _scoreCounter << "km";
+		_scoreLabel->setString(ss.str());
+		_scoreLabel->setPosition(0 + _scoreLabel->getContentSize().width / 2, winSize.height - 20);
 	}
 }
 
@@ -403,6 +474,42 @@ void HelloWorld::updateDMGPowerUp()
 	}
 }
 
+void HelloWorld::updateHEALTHPowerUp()
+{
+	_healthPwrUp->radius = (_healthPwrUp->sprite->getContentSize().width / 2) * _healthPwrUp->scale; 
+
+	if (_projectile->sprite->getBoundingBox().intersectsCircle(_healthPwrUp->sprite->getPosition(), _healthPwrUp->radius)) 
+	{
+		_healthPwrUp->sprite->setPositionX(-100);
+		_projectile->sprite->setPositionY(-100);
+		if (_shipHealthInt > 1)
+		{
+			_shipHealthInt -= 1;
+			stringstream ss;
+			ss << "health_" << _shipHealthInt << ".png";
+			_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
+		}
+	}
+
+	if (_healthPwrUp->sprite->getPositionX() > winSize.width + _healthPwrUp->sprite->getContentSize().width ||
+		_healthPwrUp->sprite->getPositionX() < 0 - _healthPwrUp->sprite->getContentSize().width ||
+		_healthPwrUp->sprite->getPositionY() > winSize.height + _healthPwrUp->sprite->getContentSize().height ||
+		_healthPwrUp->sprite->getPositionY() < 0 - _healthPwrUp->sprite->getContentSize().height)
+	{
+		_healthPwrUp->onScreen = false;
+		_healthPwrUp->counter++;
+		if (_healthPwrUp->counter == 500)
+		{
+			_healthPwrUp->sprite->setPosition(rand() % (int)winSize.width + 0, rand() % (int)winSize.height + 0);
+			_healthPwrUp->counter = 0;
+		}
+	}
+	else
+	{
+		_healthPwrUp->onScreen = true;
+	}
+}
+
 bool HelloWorld::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	return true;
@@ -421,8 +528,8 @@ void HelloWorld::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 
 		_projectile->sprite->setPosition(_turret->getPosition().x, _turret->getPosition().y);
 		_projectile->temp.setPoint(_turret->getPosition().x, _turret->getPosition().y);
+		audio->playEffect("Laser.mp3", false, 1.0f, 1.0f, 0.5f);
 	}
-
 	_projectile->onScreen = true;
 }
 
@@ -436,3 +543,36 @@ void HelloWorld::onTouchCancelled(cocos2d::Touch* touch, cocos2d::Event* event)
 
 }
 
+void HelloWorld::resetGame()
+{
+	//reset enemies
+	for (int i = 0; i < 10; i++)
+	{
+		setEnemySpawn(i);
+	}
+	
+	//reset shp/projectile
+	_shipHealthInt = 1;
+	_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_1.png"));
+	_projectile->sprite->setPosition(-200, -200);
+	_projectile->onScreen = false;
+
+	//reset score
+	_scoreCounter = 0;
+
+	//move game over stuff
+	_blackScreen->setPosition(-winSize.width, -winSize.height);
+	_restartButton->setPositionY(winSize.height + _restartButton->getContentSize().height * _restartButton->getScale());
+
+	//restart music
+	audio->playBackgroundMusic("res/BGMusic.mp3", true);
+
+	audio->stopAllEffects();
+
+	_gameover = false;
+}
+
+void HelloWorld::buttonPressed()
+{
+	resetGame();
+}
