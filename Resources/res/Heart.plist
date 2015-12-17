@@ -4,116 +4,32 @@
 	<dict>
 		<key>frames</key>
 		<dict>
-			<key>frame_1.png</key>
+			<key>heart_1.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{976,0},{487,427}}</string>
+				<string>{{0,14},{15,13}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
+				<string>{{0,0},{15,13}}</string>
 				<key>sourceSize</key>
-				<string>{494,443}</string>
+				<string>{15,13}</string>
 			</dict>
 
-			<key>frame_2.png</key>
+			<key>heart_2.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{976,428},{487,427}}</string>
+				<string>{{0,0},{15,13}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
+				<string>{{0,0},{15,13}}</string>
 				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_3.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1464,0},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_4.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{488,428},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_5.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,0},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_6.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,428},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_7.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{488,0},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
-			</dict>
-
-			<key>frame_8.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1464,428},{487,427}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{4,9},{487,427}}</string>
-				<key>sourceSize</key>
-				<string>{494,443}</string>
+				<string>{15,13}</string>
 			</dict>
 
 		</dict>
@@ -123,9 +39,9 @@
 			<key>format</key>
 			<integer>2</integer>
 			<key>size</key>
-			<string>{2048,1024}</string>
+			<string>{32,32}</string>
 			<key>textureFileName</key>
-			<string>heart.png</string>
+			<string>Heart.png</string>
 			</dict>
 		</dict>
 </plist>

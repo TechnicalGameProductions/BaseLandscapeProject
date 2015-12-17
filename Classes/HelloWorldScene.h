@@ -3,9 +3,12 @@
 
 #include "cocos2d.h"
 #include <sstream>
+#include "SimpleAudioEngine.h"  
+#include "ui/CocosGUI.h"
 
 using namespace cocos2d;
 using namespace std;
+using namespace CocosDenshion;
 
 struct Projectile
 {
@@ -32,7 +35,6 @@ struct PowerUp
 struct Enemy
 {
 	Sprite* sprite;
-	bool onScreen;
 	Point vector;
 	float speed;
 	int damage;
@@ -42,6 +44,7 @@ struct Enemy
 	int currentHealth;
 	int scale;
 	float angle;
+	Animate* _explosion;
 };
 
 class HelloWorld : public cocos2d::Layer
@@ -61,6 +64,7 @@ public:
 
 	void initHEALTHPowerUp();
 
+	void initExplotionAnim();
 	//Update Methods
 	void update(float);
 
@@ -74,9 +78,13 @@ public:
 
 	void updatePlayerShip();
 
+	void updateScore();
+
 	void updateDMGPowerUp();
 
 	void updateHEALTHPowerUp();
+
+	void resetGame();
 
 	//Deal with touches.
 	virtual bool onTouchBegan(cocos2d::Touch*, cocos2d::Event*);
@@ -84,24 +92,40 @@ public:
 	virtual void onTouchMoved(cocos2d::Touch*, cocos2d::Event*);
 	virtual void onTouchCancelled(cocos2d::Touch*, cocos2d::Event*);
 
+	void buttonPressed();
+
 private:
 	SpriteFrameCache* cacher;
+	
 	Sprite* _bg1;
 	Sprite* _bg2;
+	Size winSize;
+	int _scrollSpeed;
+
+	float _turretAngleRadians;
 	Sprite* _turret;
 	Sprite* _playerShip;
 	Sprite* _shipHealth;
-	Sprite* _doubleDamage;
 	int _shipHealthInt;
+
+	Label* _scoreLabel;
+	int _scoreCounter;
+	int _frameCounter;
+
+	Sprite* _doubleDamage;
 	PowerUp* _dmgPwrUp;
 	PowerUp* _healthPwrUp;
+
+	Sprite* _blackScreen;
+	ui::Button* _restartButton;
+	bool _gameover;
+	
 	Projectile* _projectile;
 	Enemy* _enemies[10];
 	int _enemySpawnDistance;
 	int _enemySpawn;
-	float _turretAngleRadians;
-	Size winSize;
-	int _scrollSpeed;
+
+	SimpleAudioEngine* audio;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
