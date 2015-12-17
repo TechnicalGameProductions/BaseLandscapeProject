@@ -61,6 +61,17 @@
             <FileData Type="Normal" Path="Projectile.png" Plist="" />
             <BlendFunc Src="770" Dst="771" />
           </AbstractNodeData>
+          <AbstractNodeData Name="DoubleDamage" ActionTag="29829073" Tag="9" IconVisible="False" LeftMargin="824.4056" RightMargin="-98.4056" TopMargin="398.9478" BottomMargin="17.0522" ctype="SpriteObjectData">
+            <Size X="74.0000" Y="64.0000" />
+            <AnchorPoint ScaleX="0.5000" ScaleY="0.5000" />
+            <Position X="861.4056" Y="49.0522" />
+            <Scale ScaleX="1.0000" ScaleY="1.0000" />
+            <CColor A="255" R="255" G="255" B="255" />
+            <PrePosition X="1.0768" Y="0.1022" />
+            <PreSize X="0.0000" Y="0.0000" />
+            <FileData Type="Normal" Path="DoubleDamage.png" Plist="" />
+            <BlendFunc Src="770" Dst="771" />
+          </AbstractNodeData>
         </Children>
       </ObjectData>
     </Content>

@@ -22,6 +22,7 @@
           <PlistImageFile Name="health_5.png" Key="health_5.png" />
           <PlistImageFile Name="health_6.png" Key="health_6.png" />
         </PlistImageFolder>
+        <Image Name="DoubleDamage.png" />
       </RootFolder>
     </Group>
   </SolutionFolder>

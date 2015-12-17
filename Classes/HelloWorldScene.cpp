@@ -81,6 +81,8 @@ bool HelloWorld::init()
 	//Enemies
 	initEnemies();
 
+
+
 	//Health
 	cacher->addSpriteFramesWithFile("res/Health.plist");
 	
@@ -92,6 +94,11 @@ bool HelloWorld::init()
 	_shipHealth->setPosition(winSize.width - (_shipHealth->getContentSize().width * _shipHealth->getScale()), 0);
 
 	this->addChild(_shipHealth);
+	
+	//DOUBLE DAMAGE
+	_doubleDamage = Sprite::create("res/DoubleDamage.png");
+	_doubleDamage->setPosition(-100, 300);
+	this->addChild(_doubleDamage);
 
 	//TOUCHES
 	//Set up a touch listener.
@@ -207,34 +214,43 @@ void HelloWorld::initEnemies()
 	}
 	
 	_enemySpawn = 0;
+	_enemySpawnDistance = 100;
 
 	for (int i = 0; i < 10; i++)
 	{
 		setEnemySpawn(i);
 	}
 }
-
+//Could have put setEnemySpawn and Enemy struct into own class.
 void HelloWorld::setEnemySpawn(int i)
 {
-	int temp = 125;
+	//It's too easy now, still needs tweaking
+	_enemySpawnDistance += 100;
 	_enemySpawn += 1;
+	
 	if (_enemySpawn == 5)
 	{
 		_enemySpawn = 1;
 	}
+
+	if (_enemySpawnDistance == 600)
+	{
+		_enemySpawnDistance = 100;
+	}
+
 	switch (_enemySpawn)
 		{
 		case 1:
-			_enemies[i]->sprite->setPosition(rand() % (int)winSize.width + 0, -temp);
+			_enemies[i]->sprite->setPosition(rand() % (int)winSize.width + 0, -_enemySpawnDistance);
 			break;
 		case 2:
-			_enemies[i]->sprite->setPosition(rand() % (int)winSize.width + 0, (int)winSize.height + temp);
+			_enemies[i]->sprite->setPosition(rand() % (int)winSize.width + 0, (int)winSize.height + _enemySpawnDistance);
 			break;
 		case 3:
-			_enemies[i]->sprite->setPosition(-temp, rand() % (int)winSize.height + 0);
+			_enemies[i]->sprite->setPosition(-_enemySpawnDistance, rand() % (int)winSize.height + 0);
 			break;
 		case 4:
-			_enemies[i]->sprite->setPosition((int)winSize.width + temp, rand() % (int)winSize.height + 0);
+			_enemies[i]->sprite->setPosition((int)winSize.width + _enemySpawnDistance, rand() % (int)winSize.height + 0);
 			break;
 		}
 		_enemies[i]->currentHealth = _enemies[i]->originalHealth;
@@ -334,7 +350,7 @@ void HelloWorld::updatePlayerShip()
 		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
 		{
 			setEnemySpawn(i);
-			_shipHealthInt += 1;	
+			_shipHealthInt += _enemies[i]->damage;	
 			if (_shipHealthInt < 7)
 			{
 				stringstream ss;
@@ -343,7 +359,8 @@ void HelloWorld::updatePlayerShip()
 			}
 			else
 			{
-				//game over
+				_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_6.png"));
+				//GAME OVER - RESTART CODE NEEEDED...
 			}
 		}
 	}
@@ -358,7 +375,8 @@ void HelloWorld::updateDMGPowerUp()
 	{
 		_dmgPwrUp->sprite->setPositionX(-100);
 		_projectile->sprite->setPositionY(-100);
-		//Add code to boost damage - when enemies are in the game.
+		_projectile->damage *= 2;
+		_doubleDamage->setPosition(_shipHealth->getPositionX() - 40, _shipHealth->getPositionY() + 30);
 	}
 
 	if (_dmgPwrUp->sprite->getPositionX() > winSize.width + _dmgPwrUp->sprite->getContentSize().width ||
@@ -368,7 +386,12 @@ void HelloWorld::updateDMGPowerUp()
 	{
 		_dmgPwrUp->onScreen = false;
 		_dmgPwrUp->counter++;
-		if (_dmgPwrUp->counter == 100)
+		if (_dmgPwrUp->counter == 250)
+		{
+			_projectile->damage /= 2; 
+			_doubleDamage->setPosition(-100, 300);
+		}
+		if (_dmgPwrUp->counter == 500)
 		{
 			_dmgPwrUp->sprite->setPosition(rand() % (int)winSize.width + 0, rand() % (int)winSize.height + 0);
 			_dmgPwrUp->counter = 0;
