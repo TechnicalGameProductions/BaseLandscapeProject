@@ -1,9 +1,9 @@
-<UserData Version="2.3.2.3">
+<UserData Version="2.3.3.0">
   <Properties>
     <Item Key="CocosRecentOperation">
       <Value ctype="CocosRecentOperation">
         <LastPublishType Value="VS" />
-        <IsLastPublish Value="False" />
+        <IsLastPublish Value="True" />
         <LastRunType Value="Android" />
       </Value>
     </Item>
@@ -23,14 +23,6 @@
         <IsDebugKeystore Value="True" />
         <EnableSourceMap Value="False" />
         <EnableHTML5Advanced Value="False" />
-      </Value>
-    </Item>
-    <Item Key="TabsParamsKey">
-      <Value ctype="TabsInfo">
-        <OpenedDocuments>
-          <FilePathData Path="MainScene.csd" />
-        </OpenedDocuments>
-        <ActiveDocument Path="MainScene.csd" />
       </Value>
     </Item>
   </Properties>
