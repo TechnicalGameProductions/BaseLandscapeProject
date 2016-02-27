@@ -44,7 +44,8 @@ struct Enemy
 	int currentHealth;
 	int scale;
 	float angle;
-	Animate* _explosion;
+	int animationFrame;
+	int animationCounter;
 };
 
 class HelloWorld : public cocos2d::Layer
@@ -64,7 +65,6 @@ public:
 
 	void initHEALTHPowerUp();
 
-	void initExplotionAnim();
 	//Update Methods
 	void update(float);
 

@@ -84,7 +84,6 @@ bool HelloWorld::init()
 
 	//Health
 	cacher->addSpriteFramesWithFile("res/Health.plist");
-	
 	_playerShip = (Sprite*)rootNode->getChildByName("PlayerShip");
 	_shipHealthInt = 1;
 	_shipHealth = Sprite::createWithSpriteFrameName("health_1.png");
@@ -188,25 +187,6 @@ void HelloWorld::initHEALTHPowerUp()
 	this->addChild(_healthPwrUp->sprite);
 }
 
-void HelloWorld::initExplotionAnim()
-{
-	Vector<SpriteFrame*> frames;
-	for (int i = 1; i <= 14; i++)
-	{
-		stringstream ss;
-		ss << "explosion_" << i << ".png";
-		frames.pushBack(cacher->getSpriteFrameByName(ss.str()));
-	}
-
-	auto temp = Animation::createWithSpriteFrames(frames, 0.1f);
-	for (int i = 0; i < 10; i++)
-	{
-		//_enemies[i]->_explosion = Animate::create(temp);
-		//_enemies[i]->_explosion->retain();
-	}
-
-}
-
 void HelloWorld::initEnemies()
 {
 	cacher->addSpriteFramesWithFile("res/Explosion.plist");
@@ -224,6 +204,8 @@ void HelloWorld::initEnemies()
 		_enemies[i]->sprite->setScale(_enemies[i]->scale);
 		_enemies[i]->radius = _enemies[i]->sprite->getContentSize().width / 2 * _enemies[i]->scale;
 		_enemies[i]->sprite->runAction(RepeatForever::create(RotateBy::create(15.0f, 360.0f)));
+		_enemies[i]->animationFrame = 0;
+		_enemies[i]->animationCounter = 0;
 		this->addChild(_enemies[i]->sprite);
 	}
 
@@ -240,6 +222,8 @@ void HelloWorld::initEnemies()
 		_enemies[i]->sprite->setScale(_enemies[i]->scale);
 		_enemies[i]->radius = _enemies[i]->sprite->getContentSize().width / 2 * _enemies[i]->scale;
 		_enemies[i]->sprite->runAction(RepeatForever::create(RotateBy::create(10.0f, 360.0f)));
+		_enemies[i]->animationFrame = 0;
+		_enemies[i]->animationCounter = 0;
 		this->addChild(_enemies[i]->sprite);
 	}
 
@@ -255,6 +239,8 @@ void HelloWorld::initEnemies()
 		_enemies[i]->scale = 1;
 		_enemies[i]->radius = _enemies[i]->sprite->getContentSize().width / 2 / _enemies[i]->scale;
 		_enemies[i]->sprite->runAction(RepeatForever::create(RotateBy::create(5.0f, 360.0f)));
+		_enemies[i]->animationFrame = 0;
+		_enemies[i]->animationCounter = 0;
 		this->addChild(_enemies[i]->sprite);		
 	}
 	
@@ -266,7 +252,7 @@ void HelloWorld::initEnemies()
 		setEnemySpawn(i);
 	}
 }
-//Could have put setEnemySpawn and Enemy struct into own class.
+//Could have created enemy class
 void HelloWorld::setEnemySpawn(int i)
 {
 	//It's too easy now, still needs tweaking
@@ -298,7 +284,11 @@ void HelloWorld::setEnemySpawn(int i)
 			_enemies[i]->sprite->setPosition((int)winSize.width + _enemySpawnDistance, rand() % (int)winSize.height + 0);
 			break;
 		}
-		_enemies[i]->currentHealth = _enemies[i]->originalHealth;
+	_enemies[i]->currentHealth = _enemies[i]->originalHealth;
+	_enemies[i]->animationCounter = 0;
+	_enemies[i]->animationFrame = 0;
+	_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
+	_enemies[i]->sprite->resume();
 }
 
 void HelloWorld::update(float delta)
@@ -369,29 +359,48 @@ void HelloWorld::updateEnemies()
 {
 	for (int i = 0; i < 10; i++)
 	{
-		_enemies[i]->angle = ccpToAngle(ccpSub(_enemies[i]->sprite->getPosition(), _turret->getPosition()));
-		_enemies[i]->vector = Point(-cos(_enemies[i]->angle), -sin(_enemies[i]->angle));
-		_enemies[i]->temp = _enemies[i]->sprite->getPosition();
-		_enemies[i]->temp.x += _enemies[i]->vector.x * _enemies[i]->speed;
-		_enemies[i]->temp.y += _enemies[i]->vector.y * _enemies[i]->speed;
-		_enemies[i]->sprite->setPosition(_enemies[i]->temp.x, _enemies[i]->temp.y);
+		if (_enemies[i]->currentHealth > 0)
+		{
+			_enemies[i]->angle = ccpToAngle(ccpSub(_enemies[i]->sprite->getPosition(), _turret->getPosition()));
+			_enemies[i]->vector = Point(-cos(_enemies[i]->angle), -sin(_enemies[i]->angle));
+			_enemies[i]->temp = _enemies[i]->sprite->getPosition();
+			_enemies[i]->temp.x += _enemies[i]->vector.x * _enemies[i]->speed;
+			_enemies[i]->temp.y += _enemies[i]->vector.y * _enemies[i]->speed;
+			_enemies[i]->sprite->setPosition(_enemies[i]->temp.x, _enemies[i]->temp.y);
+
+			if (_projectile->onScreen)
+			{
+				//Check for enemy collisions
+					if (_projectile->sprite->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
+					{
+						_projectile->sprite->setPosition(-100, -100);
+						_enemies[i]->currentHealth -= _projectile->damage;
+					}
+			}
+		}
 	}
 
-	if (_projectile->onScreen)
+	for (int i = 0; i < 10; i++)
 	{
-		//Check for enemy collisions
-		for (int i = 0; i < 10; i++)
+		int speed = 4;
+
+		if (_enemies[i]->currentHealth <= 0)
 		{
-			if (_projectile->sprite->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
-			{
-				_projectile->sprite->setPosition(-100, -100);
-				_enemies[i]->currentHealth -= _projectile->damage;
-				if (_enemies[i]->currentHealth <= 0)
-				{
-						//_enemies[i]->sprite->runAction(_enemies[i]->_explosion);
-						setEnemySpawn(i);
-				}
-			}
+			_enemies[i]->animationCounter += 1;
+			_enemies[i]->sprite->pause();
+		}
+
+		if (_enemies[i]->animationCounter != 0 && _enemies[i]->animationCounter % speed == 0)
+		{
+			_enemies[i]->animationFrame += 1;
+			stringstream ss;
+			ss << "explosion_" << _enemies[i]->animationFrame << ".png";
+			_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
+		}
+
+		if (_enemies[i]->animationFrame >= 14)
+		{
+			setEnemySpawn(i);
 		}
 	}
 }
@@ -408,10 +417,15 @@ void HelloWorld::updatePlayerShip()
 	}
 	for (int i = 0; i < 10; i++)
 	{
-		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
+		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius-20) && !(_enemies[i]->currentHealth <= 0))
 		{
 			audio->playEffect("res/Hit.mp3", false, 1.0f, 1.0f, 0.5f);
-			setEnemySpawn(i);
+			//setEnemySpawn(i);
+			float duration = 0.07;
+			_playerShip->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_turret->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_shipHealth->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_enemies[i]->currentHealth = 0;
 			_shipHealthInt += _enemies[i]->damage;	
 			if (_shipHealthInt < 7)
 			{
