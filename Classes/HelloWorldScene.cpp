@@ -84,7 +84,6 @@ bool HelloWorld::init()
 
 	//Health
 	cacher->addSpriteFramesWithFile("res/Health.plist");
-	
 	_playerShip = (Sprite*)rootNode->getChildByName("PlayerShip");
 	_shipHealthInt = 1;
 	_shipHealth = Sprite::createWithSpriteFrameName("health_1.png");
@@ -265,7 +264,7 @@ void HelloWorld::setEnemySpawn(int i)
 		_enemySpawn = 1;
 	}
 
-	if (_enemySpawnDistance == 700)
+	if (_enemySpawnDistance == 600)
 	{
 		_enemySpawnDistance = 100;
 	}
@@ -418,10 +417,15 @@ void HelloWorld::updatePlayerShip()
 	}
 	for (int i = 0; i < 10; i++)
 	{
-		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius))
+		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius-20) && !(_enemies[i]->currentHealth <= 0))
 		{
 			audio->playEffect("res/Hit.mp3", false, 1.0f, 1.0f, 0.5f);
-			setEnemySpawn(i);
+			//setEnemySpawn(i);
+			float duration = 0.07;
+			_playerShip->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_turret->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_shipHealth->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
+			_enemies[i]->currentHealth = 0;
 			_shipHealthInt += _enemies[i]->damage;	
 			if (_shipHealthInt < 7)
 			{
