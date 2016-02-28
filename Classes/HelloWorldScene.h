@@ -63,7 +63,11 @@ public:
 	//Init Methods - planned on refactoring more code into seperate init methods.
 	void initEnemies();
 
-	void initHEALTHPowerUp();
+	void initHealthPowerUp();
+
+	void initDamagePowerUp();
+
+	void initGameOverScreen();
 
 	//Update Methods
 	void update(float);
@@ -95,37 +99,46 @@ public:
 	void buttonPressed();
 
 private:
-	SpriteFrameCache* cacher;
-	
+	//Sprites and animation
+	SpriteFrameCache* _cacher;
+
+	//Backgrounds
 	Sprite* _bg1;
 	Sprite* _bg2;
 	Size winSize;
 	int _scrollSpeed;
+	Sprite* _closeButton;
 
+	//Player ship and turret
 	float _turretAngleRadians;
 	Sprite* _turret;
+	Projectile* _projectile;
 	Sprite* _playerShip;
 	Sprite* _shipHealth;
 	int _shipHealthInt;
 
+	//Score
 	Label* _scoreLabel;
 	int _scoreCounter;
 	int _frameCounter;
 
+	//Powerups
 	Sprite* _doubleDamage;
 	PowerUp* _dmgPwrUp;
 	PowerUp* _healthPwrUp;
 
+	//Restart Screen
 	Sprite* _blackScreen;
 	ui::Button* _restartButton;
 	bool _gameover;
-	
-	Projectile* _projectile;
+
+	//Enemy
 	Enemy* _enemies[10];
 	int _enemySpawnDistance;
 	int _enemySpawn;
 
-	SimpleAudioEngine* audio;
+	//Audio
+	SimpleAudioEngine* _audio;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
