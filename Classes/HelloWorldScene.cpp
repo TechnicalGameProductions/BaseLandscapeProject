@@ -35,6 +35,7 @@ bool HelloWorld::init()
 
     addChild(rootNode);
 
+	//Init turret and projectile
 	_turret = (Sprite*)rootNode->getChildByName("PlayerTurret");
 
 	_projectile = new Projectile();
@@ -44,46 +45,20 @@ bool HelloWorld::init()
 	_projectile->radius =_projectile->sprite->getContentSize().width / 2;
 	_projectile->damage = 1;
 
+	//Get screen size
 	winSize = Director::sharedDirector()->getWinSize();
 
 	//DmgPwrUp - need to move to own method
-	_dmgPwrUp = new PowerUp();
+	initDamagePowerUp();
 
-	cacher = SpriteFrameCache::getInstance();
-	cacher->addSpriteFramesWithFile("res/Damage.plist");
-
-	_dmgPwrUp->sprite = Sprite::create();
-
-	// load all the animation frames into an array
-	Vector<SpriteFrame*> frames;
-	for (int i = 1; i <= 2; i++)
-	{
-		stringstream ss;
-		ss << "Damage_" << i << ".png";
-		frames.pushBack(cacher->getSpriteFrameByName(ss.str()));
-	}
-
-	// play the animation
-	Animation* anim = Animation::createWithSpriteFrames(frames, 0.1f);
-	_dmgPwrUp->sprite->runAction(RepeatForever::create(Animate::create(anim)));
-	_dmgPwrUp->sprite->setPosition(100, 100);
-	_dmgPwrUp->sprite->setScale(0.5);
-	_dmgPwrUp->scale = 2;
-	_dmgPwrUp->onScreen = false;
-
-	_dmgPwrUp->counter = 0;
-
-	this->addChild(_dmgPwrUp->sprite);
-
-	//Health Powerup - works on windows, but not on android...?
-	initHEALTHPowerUp();
+	//Health Powerup 
+	initHealthPowerUp();
 
 	//Enemies
 	initEnemies();
-	//initExplotionAnim();
 
-	//Health
-	cacher->addSpriteFramesWithFile("res/Health.plist");
+	//Init player health
+	_cacher->addSpriteFramesWithFile("res/Health.plist");
 	_playerShip = (Sprite*)rootNode->getChildByName("PlayerShip");
 	_shipHealthInt = 1;
 	_shipHealth = Sprite::createWithSpriteFrameName("health_1.png");
@@ -93,27 +68,13 @@ bool HelloWorld::init()
 
 	this->addChild(_shipHealth);
 	
-	//DOUBLE DAMAGE
+	//Damage up/double damage sprite
 	_doubleDamage = Sprite::create("res/DoubleDamage.png");
 	_doubleDamage->setPosition(-100, 300);
 	this->addChild(_doubleDamage);
 
 	//GAME OVER	
-	_gameover = false;
-	_blackScreen = Sprite::create("res/BlackScreen.jpg");
-	_blackScreen->setAnchorPoint(Point(0, 0));
-	_blackScreen->setScale((winSize.width / _blackScreen->getContentSize().width), 
-		(winSize.height / _blackScreen->getContentSize().height));
-	_blackScreen->setPosition(-winSize.width, -winSize.height);
-	this->addChild(_blackScreen);	
-
-	_restartButton = ui::Button::create("res/Default/Button_Disable.png", 
-		"res/Default/Button_Press.png", "res/Default/Button_Normal.png");
-	_restartButton->setTitleText("Restart");
-	_restartButton->setScale(2);
-	_restartButton->setPosition(Vec2(-300, -300));
-	_restartButton->addTouchEventListener(CC_CALLBACK_0(HelloWorld::buttonPressed, this));
-	this->addChild(_restartButton);
+	initGameOverScreen();
 
 	//SCORE
 	_scoreLabel = Label::createWithTTF("Distance: 0", "res/Aller_Rg.ttf", 20);
@@ -122,9 +83,14 @@ bool HelloWorld::init()
 	_scoreCounter = 0;
 	_frameCounter = 0;
 
+	//Close button
+	_closeButton = Sprite::create("res/Cross.png");
+	_closeButton->setPosition(winSize.width - _closeButton->getBoundingBox().size.width, winSize.height - _closeButton->getBoundingBox().size.height);
+	this->addChild(_closeButton);
+
 	//MUSIC
-	audio = SimpleAudioEngine::getInstance();
-	audio->playBackgroundMusic("res/BGMusic.mp3", true);
+	_audio = SimpleAudioEngine::getInstance();
+	_audio->playBackgroundMusic("res/BGMusic.mp3", true);
 
 	//TOUCHES
 	//Set up a touch listener.
@@ -156,14 +122,14 @@ bool HelloWorld::init()
     return true;
 }
 
-void HelloWorld::initHEALTHPowerUp()
+void HelloWorld::initHealthPowerUp()
 {
 	//HealthPwrUp - need to move to own method
 	_healthPwrUp = new PowerUp();
 
 	_healthPwrUp->sprite = Sprite::create();
 
-	cacher->addSpriteFramesWithFile("res/Heart.plist");
+	_cacher->addSpriteFramesWithFile("res/Heart.plist");
 
 	// load all the animation frames into an array
 	Vector<SpriteFrame*> frames;
@@ -171,7 +137,7 @@ void HelloWorld::initHEALTHPowerUp()
 	{
 		stringstream ss;
 		ss << "heart_" << i << ".png";
-		frames.pushBack(cacher->getSpriteFrameByName(ss.str()));
+		frames.pushBack(_cacher->getSpriteFrameByName(ss.str()));
 	}
 
 	//play the animation
@@ -187,15 +153,46 @@ void HelloWorld::initHEALTHPowerUp()
 	this->addChild(_healthPwrUp->sprite);
 }
 
+void HelloWorld::initDamagePowerUp()
+{
+	_dmgPwrUp = new PowerUp();
+
+	_cacher = SpriteFrameCache::getInstance();
+	_cacher->addSpriteFramesWithFile("res/Damage.plist");
+
+	_dmgPwrUp->sprite = Sprite::create();
+
+	// load all the animation frames into an array
+	Vector<SpriteFrame*> frames;
+	for (int i = 1; i <= 2; i++)
+	{
+		stringstream ss;
+		ss << "Damage_" << i << ".png";
+		frames.pushBack(_cacher->getSpriteFrameByName(ss.str()));
+	}
+
+	// play the animation
+	Animation* anim = Animation::createWithSpriteFrames(frames, 0.1f);
+	_dmgPwrUp->sprite->runAction(RepeatForever::create(Animate::create(anim)));
+	_dmgPwrUp->sprite->setPosition(100, 100);
+	_dmgPwrUp->sprite->setScale(0.5);
+	_dmgPwrUp->scale = 2;
+	_dmgPwrUp->onScreen = false;
+
+	_dmgPwrUp->counter = 0;
+
+	this->addChild(_dmgPwrUp->sprite);
+}
+
 void HelloWorld::initEnemies()
 {
-	cacher->addSpriteFramesWithFile("res/Explosion.plist");
+	_cacher->addSpriteFramesWithFile("res/Explosion.plist");
 
 	for (int i = 8; i < 10; i++)
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
+		_enemies[i]->sprite->setSpriteFrame(_cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 3;
 		_enemies[i]->speed = 0.7;
 		_enemies[i]->originalHealth = 4;
@@ -213,7 +210,7 @@ void HelloWorld::initEnemies()
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
+		_enemies[i]->sprite->setSpriteFrame(_cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 2;
 		_enemies[i]->speed = 1;
 		_enemies[i]->originalHealth = 2;
@@ -231,7 +228,7 @@ void HelloWorld::initEnemies()
 	{
 		_enemies[i] = new Enemy();
 		_enemies[i]->sprite = Sprite::create();
-		_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
+		_enemies[i]->sprite->setSpriteFrame(_cacher->getSpriteFrameByName("Meteor.png"));
 		_enemies[i]->damage = 1;
 		_enemies[i]->speed = 1.4;
 		_enemies[i]->originalHealth = 1;
@@ -252,7 +249,26 @@ void HelloWorld::initEnemies()
 		setEnemySpawn(i);
 	}
 }
-//Could have created enemy class
+
+void HelloWorld::initGameOverScreen()
+{
+	_gameover = false;
+	_blackScreen = Sprite::create("res/BlackScreen.jpg");
+	_blackScreen->setAnchorPoint(Point(0, 0));
+	_blackScreen->setScale((winSize.width / _blackScreen->getContentSize().width), 
+		(winSize.height / _blackScreen->getContentSize().height));
+	_blackScreen->setPosition(-winSize.width, -winSize.height);
+	this->addChild(_blackScreen);	
+
+	_restartButton = ui::Button::create("res/Default/Button_Disable.png", 
+		"res/Default/Button_Press.png", "res/Default/Button_Normal.png");
+	_restartButton->setTitleText("Restart");
+	_restartButton->setScale(2);
+	_restartButton->setPosition(Vec2(-300, -300));
+	_restartButton->addTouchEventListener(CC_CALLBACK_0(HelloWorld::buttonPressed, this));
+	this->addChild(_restartButton);
+}
+
 void HelloWorld::setEnemySpawn(int i)
 {
 	//It's too easy now, still needs tweaking
@@ -287,7 +303,7 @@ void HelloWorld::setEnemySpawn(int i)
 	_enemies[i]->currentHealth = _enemies[i]->originalHealth;
 	_enemies[i]->animationCounter = 0;
 	_enemies[i]->animationFrame = 0;
-	_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName("Meteor.png"));
+	_enemies[i]->sprite->setSpriteFrame(_cacher->getSpriteFrameByName("Meteor.png"));
 	_enemies[i]->sprite->resume();
 }
 
@@ -395,7 +411,7 @@ void HelloWorld::updateEnemies()
 			_enemies[i]->animationFrame += 1;
 			stringstream ss;
 			ss << "explosion_" << _enemies[i]->animationFrame << ".png";
-			_enemies[i]->sprite->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
+			_enemies[i]->sprite->setSpriteFrame(_cacher->getSpriteFrameByName(ss.str()));
 		}
 
 		if (_enemies[i]->animationFrame >= 14)
@@ -408,18 +424,18 @@ void HelloWorld::updateEnemies()
 void HelloWorld::updatePlayerShip()
 {	if (_shipHealthInt >= 6)
 	{
-		_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_6.png"));
+		_shipHealth->setSpriteFrame(_cacher->getSpriteFrameByName("health_6.png"));
 		_blackScreen->setPosition(0,0);
 		_gameover = true;
-		audio->stopBackgroundMusic();
+		_audio->stopBackgroundMusic();
 		_restartButton->setPosition(Vec2(winSize.width / 2, 100));
-		audio->playEffect("GameOver.mp3", false, 1.0f, 1.0f, 1.0f);
+		_audio->playEffect("GameOver.mp3", false, 1.0f, 1.0f, 1.0f);
 	}
 	for (int i = 0; i < 10; i++)
 	{
 		if (_playerShip->boundingBox().intersectsCircle(_enemies[i]->sprite->getPosition(), _enemies[i]->radius-20) && !(_enemies[i]->currentHealth <= 0))
 		{
-			audio->playEffect("res/Hit.mp3", false, 1.0f, 1.0f, 0.5f);
+			_audio->playEffect("res/Hit.mp3", false, 1.0f, 1.0f, 0.5f);
 			//setEnemySpawn(i);
 			float duration = 0.07;
 			_playerShip->runAction(Sequence::create(FadeTo::create(duration, 0), FadeTo::create(duration, 255), nullptr));
@@ -431,7 +447,7 @@ void HelloWorld::updatePlayerShip()
 			{
 				stringstream ss;
 				ss << "health_" << _shipHealthInt << ".png";
-				_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
+				_shipHealth->setSpriteFrame(_cacher->getSpriteFrameByName(ss.str()));
 			}
 		}
 	}
@@ -501,7 +517,7 @@ void HelloWorld::updateHEALTHPowerUp()
 			_shipHealthInt -= 1;
 			stringstream ss;
 			ss << "health_" << _shipHealthInt << ".png";
-			_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName(ss.str()));
+			_shipHealth->setSpriteFrame(_cacher->getSpriteFrameByName(ss.str()));
 		}
 	}
 
@@ -531,6 +547,10 @@ bool HelloWorld::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void HelloWorld::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
+	if (_closeButton->getBoundingBox().containsPoint(touch->getLocation()))
+	{
+		CCDirector::sharedDirector()->end();
+	}
 	//ccpsub gets angle between them
 	_turretAngleRadians = ccpToAngle(ccpSub(_turret->getPosition(), touch->getLocation()));
 
@@ -542,7 +562,7 @@ void HelloWorld::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 
 		_projectile->sprite->setPosition(_turret->getPosition().x, _turret->getPosition().y);
 		_projectile->temp.setPoint(_turret->getPosition().x, _turret->getPosition().y);
-		audio->playEffect("Laser.mp3", false, 1.0f, 1.0f, 0.5f);
+		_audio->playEffect("Laser.mp3", false, 1.0f, 1.0f, 0.5f);
 	}
 	_projectile->onScreen = true;
 }
@@ -567,7 +587,7 @@ void HelloWorld::resetGame()
 	
 	//reset shp/projectile
 	_shipHealthInt = 1;
-	_shipHealth->setSpriteFrame(cacher->getSpriteFrameByName("health_1.png"));
+	_shipHealth->setSpriteFrame(_cacher->getSpriteFrameByName("health_1.png"));
 	_projectile->sprite->setPosition(-200, -200);
 	_projectile->onScreen = false;
 
@@ -579,9 +599,9 @@ void HelloWorld::resetGame()
 	_restartButton->setPositionY(winSize.height + _restartButton->getContentSize().height * _restartButton->getScale());
 
 	//restart music
-	audio->playBackgroundMusic("res/BGMusic.mp3", true);
+	_audio->playBackgroundMusic("res/BGMusic.mp3", true);
 
-	audio->stopAllEffects();
+	_audio->stopAllEffects();
 
 	_gameover = false;
 }

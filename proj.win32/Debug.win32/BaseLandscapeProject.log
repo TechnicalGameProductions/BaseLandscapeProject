@@ -1,4 +1,4 @@
-﻿Build started 27/02/2016 21:35:25.
+﻿Build started 28/02/2016 16:50:37.
      1>Project "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\BaseLandscapeProject.vcxproj" on node 2 (Build target(s)).
      1>PreLinkEvent:
          if not exist "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\Debug.win32\" mkdir "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\Debug.win32\"
@@ -13,10 +13,9 @@
          xcopy "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\..\Resources" "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\Debug.win32\" /D /E /I /F /Y
                
          :VCEnd
-         C:\Users\DeadMan\Documents\GitHub\SpaceGame\Resources\res\MainScene.csb -> C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\Debug.win32\res\MainScene.csb
-         1 File(s) copied
+         0 File(s) copied
      1>Done Building Project "C:\Users\DeadMan\Documents\GitHub\SpaceGame\proj.win32\BaseLandscapeProject.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.29
+Time Elapsed 00:00:00.67
