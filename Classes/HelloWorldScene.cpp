@@ -44,6 +44,7 @@ bool HelloWorld::init()
 	_projectile->onScreen = false;
 	_projectile->radius =_projectile->sprite->getContentSize().width / 2;
 	_projectile->damage = 1;
+	_projectile->sprite->runAction(RepeatForever::create(RotateBy::create(1.0f, 360.0f)));
 
 	//Get screen size
 	winSize = Director::sharedDirector()->getWinSize();
